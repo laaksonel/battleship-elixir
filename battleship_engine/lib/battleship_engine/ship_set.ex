@@ -17,6 +17,19 @@ defmodule BattleshipEngine.ShipSet do
     Agent.start_link(fn -> initialized_set() end)
   end
 
+  def sunken?(_ship_set, :none), do: false
+
+  def sunken?(ship_set, ship_key) do
+    ship_set
+    |> Agent.get(fn state -> Map.get(state, ship_key) end)
+    |> Ship.sunk?()
+  end
+
+  def all_sunk?(ship_set) do
+    ships = Agent.get(ship_set, fn state -> state end)
+    Enum.all?(keys(), fn ship_key -> Ship.sunk?(Map.get(ships, ship_key)) end)
+  end
+
   defp initialized_set() do
     Enum.reduce(keys(), %ShipSet{}, fn key, set ->
       {:ok, ship} = Ship.start_link()

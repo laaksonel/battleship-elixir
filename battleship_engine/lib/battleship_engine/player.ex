@@ -37,6 +37,23 @@ defmodule BattleshipEngine.Player do
     end
   end
 
+  def sunken_ship(opponent, coordinate) do
+    ship_set = get_ship_set(opponent)
+    board = Player.get_board(opponent)
+    ship_key = Board.coordinate_ship(board, coordinate)
+
+    case ShipSet.sunken?(ship_set, ship_key) do
+      true -> ship_key
+      false -> :none
+    end
+  end
+
+  def win?(opponent) do
+    opponent
+    |> Player.get_ship_set()
+    |> ShipSet.all_sunk?()
+  end
+
   defp convert_coordinates(board, coordinates) do
     Enum.map(coordinates, fn coord -> convert_coordinate(board, coord) end)
   end

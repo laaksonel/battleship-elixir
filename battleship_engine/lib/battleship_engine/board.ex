@@ -12,9 +12,9 @@ defmodule BattleshipEngine.Board do
     Agent.get(board, fn board -> board[key] end)
   end
 
-  def guess_coordinate(board, key) do
+  def guess_coordinate(board, coordinate) do
     Agent.get(board, fn board ->
-      get_coordinate(board, key)
+      get_coordinate(board, coordinate)
       |> Coordinate.guess()
     end)
   end

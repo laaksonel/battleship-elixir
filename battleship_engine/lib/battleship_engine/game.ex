@@ -14,7 +14,7 @@ defmodule BattleshipEngine.Game do
   end
 
   def guess_coordinate(pid, player, coordinate) when is_atom(player) and is_atom(coordinate) do
-    GenServer.call(pid, {:guess, player, coordinate })
+    GenServer.call(pid, {:guess, player, coordinate})
   end
 
   def start_link(name) when not is_nil(name) do
@@ -41,10 +41,11 @@ defmodule BattleshipEngine.Game do
     {:reply, :ok, state}
   end
 
-  def handle_call({:guess, player, coordinate }, _from, state) do
+  def handle_call({:guess, player, coordinate}, _from, state) do
     opponent = opponent(state, player)
     opponent_board = Player.get_board(opponent)
     response = Player.guess_coordinate(opponent_board, coordinate)
+    |> sink_check(opponent, coordinate)
 
     {:reply, response, state}
   end
@@ -55,5 +56,27 @@ defmodule BattleshipEngine.Game do
 
   defp opponent(state, :player2) do
     state.player1
+  end
+
+  defp sink_check(:miss, _opponent, _coordinate) do
+    {:miss, :none}
+  end
+
+  defp sink_check(:hit, opponent, coordinate) do
+    ship_key = Player.sunken_ship(opponent, coordinate)
+    {:hit, ship_key}
+  end
+
+  defp win_check({hit_or_miss, :none}, _opponent, state) do
+    {:reply, {hit_or_miss, :none, :no_win}, state}
+  end
+
+  defp win_check({:hit, ship_key}, opponent, state) do
+    win_status = case Player.win?(opponent) do
+       true -> :win
+      false -> :no_win
+    end
+
+    {:reply, {:hit, ship_key, win_status}, state}
   end
 end
