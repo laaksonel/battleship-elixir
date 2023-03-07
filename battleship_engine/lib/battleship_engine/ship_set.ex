@@ -4,8 +4,8 @@ defmodule BattleshipEngine.ShipSet do
   # Weird ships aye?
   defstruct atoll: :none, dot: :none, l_shape: :none, s_shape: :none, square: :none
 
-  def set_ship_coordinates(ship_set, ship, new_coordinates) do
-    ship = Agent.get(ship_set, fn state -> Map.get(state, ship) end)
+  def set_ship_coordinates(ship_set, ship_key, new_coordinates) do
+    ship = Agent.get(ship_set, fn state -> Map.get(state, ship_key) end)
     original_coordinates = Agent.get(ship, fn state -> state end)
 
     Ship.replace_coordinate(ship, new_coordinates)

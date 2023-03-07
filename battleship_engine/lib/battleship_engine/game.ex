@@ -8,9 +8,13 @@ defmodule BattleshipEngine.Game do
     GenServer.call(pid, {:add_player, name})
   end
 
-  def set_ship_coordinates(pid, player, ship, coordinates)
-      when is_atom(player) and is_atom(ship) do
-    GenServer.call(pid, {:set_ship_coordinates, player, ship, coordinates})
+  def set_ship_coordinates(pid, player, ship_key, coordinates)
+      when is_atom(player) and is_atom(ship_key) do
+    GenServer.call(pid, {:set_ship_coordinates, player, ship_key, coordinates})
+  end
+
+  def guess_coordinate(pid, player, coordinate) when is_atom(player) and is_atom(coordinate) do
+    GenServer.call(pid, {:guess, player, coordinate })
   end
 
   def start_link(name) when not is_nil(name) do
@@ -29,11 +33,27 @@ defmodule BattleshipEngine.Game do
     {:reply, :ok, state}
   end
 
-  def handle_call({:set_ship_coordinates, player, ship, coordinates}, _from, state) do
+  def handle_call({:set_ship_coordinates, player, ship_key, coordinates}, _from, state) do
     state
     |> Map.get(player)
-    |> Player.set_ship_coordinates(ship, coordinates)
+    |> Player.set_ship_coordinates(ship_key, coordinates)
 
     {:reply, :ok, state}
+  end
+
+  def handle_call({:guess, player, coordinate }, _from, state) do
+    opponent = opponent(state, player)
+    opponent_board = Player.get_board(opponent)
+    response = Player.guess_coordinate(opponent_board, coordinate)
+
+    {:reply, response, state}
+  end
+
+  defp opponent(state, :player1) do
+    state.player2
+  end
+
+  defp opponent(state, :player2) do
+    state.player1
   end
 end
