@@ -33,4 +33,8 @@ defmodule BattleshipEngine.Coordinate do
   def set_in_ship(coordinate, ship) do
     Agent.update(coordinate, fn state -> %{state | in_ship: ship} end)
   end
+
+  def set_all_in_ship(new_coordinates, ship) when is_list(new_coordinates) and is_atom(ship) do
+    Enum.each(new_coordinates, fn coord -> set_in_ship(coord, ship) end)
+  end
 end
