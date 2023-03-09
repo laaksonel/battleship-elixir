@@ -1,6 +1,10 @@
 defmodule BattleshipEngine.Rules do
   @behaviour :gen_statem
 
+  def add_player(fsm) do
+    :gen_statem.call(fsm, :add_player)
+  end
+
   def callback_mode(), do: :state_functions
 
   def start_link() do
