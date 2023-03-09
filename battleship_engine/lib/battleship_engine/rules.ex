@@ -1,8 +1,20 @@
 defmodule BattleshipEngine.Rules do
+  alias BattleshipEngine.Rules
+
+  defstruct player1: :ships_not_set, player2: :ships_not_set
+
   @behaviour :gen_statem
 
   def add_player(fsm) do
     :gen_statem.call(fsm, :add_player)
+  end
+
+  def guess_coordinate(fsm, player) when is_atom(player) do
+    :gen_statem.call(fsm, {:guess_coordinate, player})
+  end
+
+  def win(fsm) do
+    :gen_statem.call(fsm, :win)
   end
 
   def callback_mode(), do: :state_functions
@@ -12,7 +24,7 @@ defmodule BattleshipEngine.Rules do
   end
 
   def init(:initialized) do
-    {:ok, :initialized, []}
+    {:ok, :initialized, %Rules{}}
   end
 
   def initialized({:call, from}, :add_player, state_data) do
