@@ -17,8 +17,8 @@ defmodule BattleshipEngine.Game do
     GenServer.call(pid, {:guess, player, coordinate})
   end
 
-  def start_link(name) when not is_nil(name) do
-    GenServer.start_link(__MODULE__, name)
+  def start_link(name) when is_binary(name) and byte_size(name) > 0 do
+    GenServer.start_link(__MODULE__, name, name: {:global, "game:#{name}"})
   end
 
   def init(name) do
@@ -44,8 +44,10 @@ defmodule BattleshipEngine.Game do
   def handle_call({:guess, player, coordinate}, _from, state) do
     opponent = opponent(state, player)
     opponent_board = Player.get_board(opponent)
-    response = Player.guess_coordinate(opponent_board, coordinate)
-    |> sink_check(opponent, coordinate)
+
+    response =
+      Player.guess_coordinate(opponent_board, coordinate)
+      |> sink_check(opponent, coordinate)
 
     {:reply, response, state}
   end
@@ -72,10 +74,11 @@ defmodule BattleshipEngine.Game do
   end
 
   defp win_check({:hit, ship_key}, opponent, state) do
-    win_status = case Player.win?(opponent) do
-       true -> :win
-      false -> :no_win
-    end
+    win_status =
+      case Player.win?(opponent) do
+        true -> :win
+        false -> :no_win
+      end
 
     {:reply, {:hit, ship_key, win_status}, state}
   end
