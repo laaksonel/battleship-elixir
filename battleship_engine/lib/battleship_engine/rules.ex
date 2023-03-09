@@ -17,6 +17,14 @@ defmodule BattleshipEngine.Rules do
     :gen_statem.call(fsm, :win)
   end
 
+  def move_ship(fsm, player) do
+    :gen_statem.call(fsm, {:move_ship, player})
+  end
+
+  def set_ships(fsm, player) do
+    :gen_statem.call(fsm, {:set_ships, player})
+  end
+
   def callback_mode(), do: :state_functions
 
   def start_link() do
