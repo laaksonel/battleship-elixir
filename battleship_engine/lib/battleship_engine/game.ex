@@ -21,6 +21,10 @@ defmodule BattleshipEngine.Game do
     GenServer.start_link(__MODULE__, name, name: {:global, "game:#{name}"})
   end
 
+  def stop(pid) do
+    GenServer.cast(pid, :stop)
+  end
+
   def init(name) do
     {:ok, player1} = Player.start_link(name)
     {:ok, player2} = Player.start_link()
@@ -50,6 +54,10 @@ defmodule BattleshipEngine.Game do
       |> sink_check(opponent, coordinate)
 
     {:reply, response, state}
+  end
+
+  def handle_cast(:stop, state) do
+    {:stop, :normal, state}
   end
 
   defp opponent(state, :player1) do
