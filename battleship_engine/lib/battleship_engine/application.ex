@@ -8,6 +8,7 @@ defmodule BattleshipEngine.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {Registry, keys: :unique, name: Registry.Game},
       BattleshipEngine.GameSupervisor
     ]
 
