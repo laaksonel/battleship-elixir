@@ -3,8 +3,7 @@ defmodule BattleshipEngine.GameSupervisor do
   use DynamicSupervisor
 
   def start_game(name) do
-    spec = %{id: Game, start: {Game, :start_link, [name]} }
-    DynamicSupervisor.start_child(__MODULE__, spec)
+    DynamicSupervisor.start_child(__MODULE__, {Game, [name]})
   end
 
   def start_link(_args) do
