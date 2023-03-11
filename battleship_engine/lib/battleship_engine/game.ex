@@ -69,6 +69,10 @@ defmodule BattleshipEngine.Game do
     {:stop, :normal, state}
   end
 
+  def handle_info(:timeout, state) do
+    {:stop, {:shutdown, :timeout}, state}
+  end
+
   defp opponent(state, :player1) do
     state.player2
   end
