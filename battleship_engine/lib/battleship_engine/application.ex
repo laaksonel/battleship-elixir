@@ -8,8 +8,7 @@ defmodule BattleshipEngine.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: BattleshipEngine.Worker.start_link(arg)
-      # {BattleshipEngine.Worker, arg}
+      BattleshipEngine.GameSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
