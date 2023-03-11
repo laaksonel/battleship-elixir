@@ -29,6 +29,10 @@ defmodule BattleshipEngine.Game do
     GenServer.cast(pid, :stop)
   end
 
+  def via_tuple(name) do
+    {:via, Registry, {Registry.Game, name}}
+  end
+
   def init(name) do
     {:ok, player1} = Player.start_link(name)
     {:ok, player2} = Player.start_link()
