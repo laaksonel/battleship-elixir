@@ -2,7 +2,7 @@ defmodule BattleshipEngine.Game do
   alias BattleshipEngine.{Game, Player, Rules}
   defstruct player1: :none, player2: :none, fsm: :none
 
-  use GenServer
+  use GenServer, start: {__MODULE__, :start_link, []}, restart: :transient
 
   def add_player(pid, name) when not is_nil(name) do
     GenServer.call(pid, {:add_player, name})
