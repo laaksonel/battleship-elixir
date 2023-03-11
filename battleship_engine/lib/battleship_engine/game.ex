@@ -1,4 +1,5 @@
 defmodule BattleshipEngine.Game do
+  @timeout_ms 60 * 60 * 1000
   alias BattleshipEngine.{Game, Player, Rules}
   defstruct player1: :none, player2: :none, fsm: :none
 
@@ -38,7 +39,7 @@ defmodule BattleshipEngine.Game do
     {:ok, player2} = Player.start_link()
     {:ok, fsm} = Rules.start_link()
 
-    {:ok, %Game{player1: player1, player2: player2, fsm: fsm}}
+    {:ok, %Game{player1: player1, player2: player2, fsm: fsm}, @timeout_ms}
   end
 
   def handle_call({:add_player, name}, _from, state) do
