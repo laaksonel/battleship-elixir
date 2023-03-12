@@ -43,10 +43,11 @@ defmodule BattleshipEngine.Game do
   end
 
   def handle_info({:set_state, name}, _from, _state) do
-    state = case :ets.lookup(:game_state, name) do
-      [] -> fresh_state(name)
-      [{_key, state}] -> state
-    end
+    state =
+      case :ets.lookup(:game_state, name) do
+        [] -> fresh_state(name)
+        [{_key, state}] -> state
+      end
 
     :ets.insert(:game_state, {name, state})
     {:no_reply, state, @timeout_ms}
@@ -79,6 +80,13 @@ defmodule BattleshipEngine.Game do
   def handle_cast(:stop, state) do
     {:stop, :normal, state}
   end
+
+  def terminate({:shutdown, :timeout}, state) do
+    :ets.delete(:game_state, state.player1.name)
+    :ok
+  end
+
+  def terminate(_reason, _state), do: :ok
 
   def handle_info(:timeout, state) do
     {:stop, {:shutdown, :timeout}, state}
