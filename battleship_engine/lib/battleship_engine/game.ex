@@ -38,13 +38,18 @@ defmodule BattleshipEngine.Game do
   end
 
   def init(name) do
+    send(self(), {:set_state, name})
+    {:ok, fresh_state(name)}
+  end
+
+  def handle_info({:set_state, name}, _from, _state) do
     state = case :ets.lookup(:game_state, name) do
       [] -> fresh_state(name)
       [{_key, state}] -> state
     end
 
     :ets.insert(:game_state, {name, state})
-    {:ok, state, @timeout_ms}
+    {:no_reply, state, @timeout_ms}
   end
 
   def handle_call({:add_player, name}, _from, state) do
