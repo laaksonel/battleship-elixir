@@ -35,11 +35,13 @@ defmodule BattleshipEngine.Game do
   end
 
   def init(name) do
-    {:ok, player1} = Player.start_link(name)
-    {:ok, player2} = Player.start_link()
-    {:ok, fsm} = Rules.start_link()
+    state = case :ets.lookup(:game_state, name) do
+      [] -> fresh_state(name)
+      [{_key, state}] -> state
+    end
 
-    {:ok, %Game{player1: player1, player2: player2, fsm: fsm}, @timeout_ms}
+    :ets.insert(:game_state, {name, state})
+    {:ok, state, @timeout_ms}
   end
 
   def handle_call({:add_player, name}, _from, state) do
@@ -139,5 +141,13 @@ defmodule BattleshipEngine.Game do
 
   defp guess_reply({:error, :action_out_of_sequence}, _opponent_board, _coordinate) do
     {:error, :action_out_of_sequence}
+  end
+
+  defp fresh_state(name) do
+    {:ok, player1} = Player.start_link(name)
+    {:ok, player2} = Player.start_link()
+    {:ok, fsm} = Rules.start_link()
+
+    %Game{player1: player1, player2: player2, fsm: fsm}
   end
 end
