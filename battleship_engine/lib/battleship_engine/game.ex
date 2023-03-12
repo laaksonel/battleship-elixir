@@ -1,3 +1,6 @@
+# TODO: Game state is never updated after each action
+# Create a reply function which takes state as a parameter
+# and store the state in ETS table before each reply 
 defmodule BattleshipEngine.Game do
   @timeout_ms 60 * 60 * 1000
   alias BattleshipEngine.{Game, Player, Rules}
