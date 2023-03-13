@@ -33,6 +33,7 @@ defmodule BattleshipInterfaceWeb do
   def channel do
     quote do
       use Phoenix.Channel
+      import BattleshipInterfaceWeb.Gettext
     end
   end
 
