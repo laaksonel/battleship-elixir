@@ -18,6 +18,7 @@ defmodule BattleshipInterfaceWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    post "/test", PageController, :test
   end
 
   # Other scopes may use custom stacks.
