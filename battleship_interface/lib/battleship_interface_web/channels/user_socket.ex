@@ -10,7 +10,7 @@ defmodule BattleshipInterfaceWeb.UserSocket do
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `BattleshipInterfaceWeb.RoomChannel`:
   #
-  # channel "room:*", BattleshipInterfaceWeb.RoomChannel
+  channel "room:*", BattleshipInterfaceWeb.GameChannel
   #
   # To create a channel file, use the mix task:
   #
@@ -18,7 +18,6 @@ defmodule BattleshipInterfaceWeb.UserSocket do
   #
   # See the [`Channels guide`](https://hexdocs.pm/phoenix/channels.html)
   # for further details.
-
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
