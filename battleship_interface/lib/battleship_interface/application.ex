@@ -15,9 +15,10 @@ defmodule BattleshipInterface.Application do
       # Start Finch
       {Finch, name: BattleshipInterface.Finch},
       # Start the Endpoint (http/https)
-      BattleshipInterfaceWeb.Endpoint
+      BattleshipInterfaceWeb.Endpoint,
       # Start a worker by calling: BattleshipInterface.Worker.start_link(arg)
       # {BattleshipInterface.Worker, arg}
+      BattleshipInterfaceWeb.Presence
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
