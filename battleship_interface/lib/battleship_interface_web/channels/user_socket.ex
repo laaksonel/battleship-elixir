@@ -10,7 +10,7 @@ defmodule BattleshipInterfaceWeb.UserSocket do
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `BattleshipInterfaceWeb.RoomChannel`:
   #
-  channel "room:*", BattleshipInterfaceWeb.GameChannel
+  channel "game:*", BattleshipInterfaceWeb.GameChannel
   #
   # To create a channel file, use the mix task:
   #
