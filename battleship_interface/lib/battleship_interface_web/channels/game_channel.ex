@@ -65,6 +65,16 @@ defmodule BattleshipInterfaceWeb.GameChannel do
     end
   end
 
+  def handle_in("set_ships", player, socket) do
+    player = String.to_existing_atom(player)
+    case Game.set_ships(via(socket.topic), player) do
+      {:ok, board} ->
+        broadcast!(socket, "player_set_ships", %{player: player})
+        {:reply, {:ok, %{board: board}}, socket}
+      _ -> {:reply, :error, socket}
+    end
+  end
+
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true
