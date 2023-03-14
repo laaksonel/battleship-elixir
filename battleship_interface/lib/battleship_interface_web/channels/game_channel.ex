@@ -1,4 +1,5 @@
 defmodule BattleshipInterfaceWeb.GameChannel do
+  alias BattleshipEngine.GameSupervisor
   use BattleshipInterfaceWeb, :channel
 
   @impl true
@@ -30,6 +31,14 @@ defmodule BattleshipInterfaceWeb.GameChannel do
   def handle_in("shout", payload, socket) do
     broadcast(socket, "shout", payload)
     {:noreply, socket}
+  end
+
+  def handle_in("new_game", _payload, socket) do
+    "game:" <> player = socket.topic
+    case GameSupervisor.start_game(player) do
+      {:ok, _pid} -> {:reply, :ok, socket}
+      {:error, reason} -> {:reply, {:error, %{reason: reason}}, socket}
+    end
   end
 
   # Add authorization logic here as required.
