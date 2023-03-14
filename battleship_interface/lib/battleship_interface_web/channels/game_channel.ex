@@ -75,6 +75,26 @@ defmodule BattleshipInterfaceWeb.GameChannel do
     end
   end
 
+  def handle_in("guess_coordinate", params, socket) do
+    %{"player" => player, "coordinate" => coordinate} = params
+    player = String.to_existing_atom(player)
+
+    case Game.guess_coordinate(via(socket.topic), player, coordinate) do
+      {:hit, ship, win} ->
+        result = %{hit: true, ship: ship, win: win}
+        broadcast!(socket, "player_guessed_coordinate", %{player: player, coordinate: coordinate, result: result})
+        {:noreply, socket}
+      {:miss, ship, win} ->
+        result = %{hit: false, ship: ship, win: win}
+        broadcast!(socket, "player_guessed_coordinate", %{player: player, coordinate: coordinate, result: result})
+        {:noreply, socket}
+      :error ->
+        {:reply, {:error, %{player: player, reason: "Not your turn."}}, socket}
+      {:error, reason} ->
+        {:reply, {:error, %{player: player, reason: reason}}, socket}
+    end
+  end
+
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true
