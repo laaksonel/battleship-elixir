@@ -1,5 +1,5 @@
 defmodule BattleshipInterfaceWeb.GameChannel do
-  alias BattleshipEngine.GameSupervisor
+  alias BattleshipEngine.{GameSupervisor, Game}
   use BattleshipInterfaceWeb, :channel
 
   @impl true
@@ -37,7 +37,15 @@ defmodule BattleshipInterfaceWeb.GameChannel do
     "game:" <> player = socket.topic
     case GameSupervisor.start_game(player) do
       {:ok, _pid} -> {:reply, :ok, socket}
-      {:error, reason} -> {:reply, {:error, %{reason: reason}}, socket}
+      {:error, reason} -> {:reply, {:error, %{reason: inspect(reason)}}, socket}
+    end
+  end
+
+  def handle_in("add_player", player, socket) do
+    case Game.add_player(via(socket.topic), player) do
+      :ok -> broadcast!(socket, "player_added", %{message: "New player joined: " <> player})
+      {:error, reason} -> {:reply, {:error, %{reason: inspect(reason)}}, socket}
+      :error ->  {:reply, :error, socket}
     end
   end
 
@@ -45,4 +53,6 @@ defmodule BattleshipInterfaceWeb.GameChannel do
   defp authorized?(_payload) do
     true
   end
+
+  defp via("game:" <> player), do: Game.via_tuple(player)
 end
