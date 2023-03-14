@@ -1,4 +1,5 @@
 defmodule BattleshipInterfaceWeb.GameChannel do
+  alias BattleshipInterfaceWeb.Presence
   alias BattleshipEngine.{GameSupervisor, Game}
   use BattleshipInterfaceWeb, :channel
 
@@ -19,6 +20,11 @@ defmodule BattleshipInterfaceWeb.GameChannel do
         online_at: inspect(System.system_time(:second))
       })
 
+    {:noreply, socket}
+  end
+
+  def handle_in("show_subscribers", _payload, socket) do
+    broadcast!(socket, "subscribers", Presence.list(socket))
     {:noreply, socket}
   end
 
