@@ -2,7 +2,7 @@ defmodule BattleshipInterfaceWeb.GameChannel do
   use BattleshipInterfaceWeb, :channel
 
   @impl true
-  def join("game:lobby", payload, socket) do
+  def join("game:" <> _player, payload, socket) do
     if authorized?(payload) do
       {:ok, socket}
     else
@@ -15,6 +15,13 @@ defmodule BattleshipInterfaceWeb.GameChannel do
   @impl true
   def handle_in("ping", payload, socket) do
     {:reply, {:ok, payload}, socket}
+  end
+
+  @impl true
+  def handle_in("hello", payload, socket) do
+    # push(socket, "said_hello", payload)
+    broadcast!(socket, "said_hello", payload)
+    {:noreply, socket}
   end
 
   # It is also common to receive messages from the client and
