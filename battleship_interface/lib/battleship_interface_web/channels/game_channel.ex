@@ -3,12 +3,23 @@ defmodule BattleshipInterfaceWeb.GameChannel do
   use BattleshipInterfaceWeb, :channel
 
   @impl true
-  def join("game:" <> _player, payload, socket) do
+  def join("game:" <> _player, %{"screen_name" => screen_name} = payload, socket) do
     if authorized?(payload) do
+      send(self(), {:after_join, screen_name})
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
+  end
+
+  @impl true
+  def handle_info({:after_join, screen_name}, socket) do
+    {:ok, _} =
+      BattleshipInterfaceWeb.Presence.track(socket, screen_name, %{
+        online_at: inspect(System.system_time(:second))
+      })
+
+    {:noreply, socket}
   end
 
   # Channels can be used in a request/response fashion
@@ -35,6 +46,7 @@ defmodule BattleshipInterfaceWeb.GameChannel do
 
   def handle_in("new_game", _payload, socket) do
     "game:" <> player = socket.topic
+
     case GameSupervisor.start_game(player) do
       {:ok, _pid} -> {:reply, :ok, socket}
       {:error, reason} -> {:reply, {:error, %{reason: inspect(reason)}}, socket}
@@ -45,7 +57,7 @@ defmodule BattleshipInterfaceWeb.GameChannel do
     case Game.add_player(via(socket.topic), player) do
       :ok -> broadcast!(socket, "player_added", %{message: "New player joined: " <> player})
       {:error, reason} -> {:reply, {:error, %{reason: inspect(reason)}}, socket}
-      :error ->  {:reply, :error, socket}
+      :error -> {:reply, :error, socket}
     end
   end
 
@@ -67,11 +79,14 @@ defmodule BattleshipInterfaceWeb.GameChannel do
 
   def handle_in("set_ships", player, socket) do
     player = String.to_existing_atom(player)
+
     case Game.set_ships(via(socket.topic), player) do
       {:ok, board} ->
         broadcast!(socket, "player_set_ships", %{player: player})
         {:reply, {:ok, %{board: board}}, socket}
-      _ -> {:reply, :error, socket}
+
+      _ ->
+        {:reply, :error, socket}
     end
   end
 
@@ -82,14 +97,29 @@ defmodule BattleshipInterfaceWeb.GameChannel do
     case Game.guess_coordinate(via(socket.topic), player, coordinate) do
       {:hit, ship, win} ->
         result = %{hit: true, ship: ship, win: win}
-        broadcast!(socket, "player_guessed_coordinate", %{player: player, coordinate: coordinate, result: result})
+
+        broadcast!(socket, "player_guessed_coordinate", %{
+          player: player,
+          coordinate: coordinate,
+          result: result
+        })
+
         {:noreply, socket}
+
       {:miss, ship, win} ->
         result = %{hit: false, ship: ship, win: win}
-        broadcast!(socket, "player_guessed_coordinate", %{player: player, coordinate: coordinate, result: result})
+
+        broadcast!(socket, "player_guessed_coordinate", %{
+          player: player,
+          coordinate: coordinate,
+          result: result
+        })
+
         {:noreply, socket}
+
       :error ->
         {:reply, {:error, %{player: player, reason: "Not your turn."}}, socket}
+
       {:error, reason} ->
         {:reply, {:error, %{player: player, reason: reason}}, socket}
     end
