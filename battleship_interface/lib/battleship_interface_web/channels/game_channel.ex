@@ -49,6 +49,22 @@ defmodule BattleshipInterfaceWeb.GameChannel do
     end
   end
 
+  def handle_in("position_ship", payload, socket) do
+    %{
+      "player" => player,
+      "ship" => ship,
+      "coordinate" => coordinate
+    } = payload
+
+    player = String.to_existing_atom(player)
+    ship = String.to_existing_atom(ship)
+
+    case Game.set_ship_coordinates(via(socket.topic), player, ship, coordinate) do
+      :ok -> {:reply, :ok, socket}
+      _ -> {:reply, :error, socket}
+    end
+  end
+
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true
